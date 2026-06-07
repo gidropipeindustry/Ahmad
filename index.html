@@ -16,6 +16,7 @@
     --accent-k: #f0c040;
     --accent-m: #4fc3f7;
     --accent-d: #a78bfa;
+    --accent-add: #4ade80;
     --text: #f0f0f8;
     --text-muted: #7070a0;
     --success: #4ade80;
@@ -48,18 +49,18 @@
 
   .tabs {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
     margin-bottom: 24px;
   }
 
   .tab {
-    padding: 12px 8px;
+    padding: 10px 4px;
     border: 2px solid var(--border);
     background: var(--surface);
     border-radius: var(--radius);
     font-family: 'Unbounded', sans-serif;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
     cursor: pointer;
@@ -70,6 +71,7 @@
   .tab.active-k { border-color: var(--accent-k); color: var(--accent-k); background: rgba(240,192,64,0.08); }
   .tab.active-m { border-color: var(--accent-m); color: var(--accent-m); background: rgba(79,195,247,0.08); }
   .tab.active-d { border-color: var(--accent-d); color: var(--accent-d); background: rgba(167,139,250,0.08); }
+  .tab.active-add { border-color: var(--accent-add); color: var(--accent-add); background: rgba(74,222,128,0.08); }
 
   .form { display: none; }
   .form.active { display: block; }
@@ -124,6 +126,7 @@
   .form-k .field input:focus, .form-k .field select:focus { border-color: var(--accent-k); }
   .form-m .field input:focus, .form-m .field select:focus { border-color: var(--accent-m); }
   .form-d .field input:focus, .form-d .field select:focus { border-color: var(--accent-d); }
+  .form-add .field input:focus { border-color: var(--accent-add); }
 
   .btn {
     width: 100%;
@@ -143,6 +146,7 @@
   .btn-k { background: var(--accent-k); color: #0f0f13; }
   .btn-m { background: var(--accent-m); color: #0f0f13; }
   .btn-d { background: var(--accent-d); color: #0f0f13; }
+  .btn-add { background: var(--accent-add); color: #0f0f13; }
   .btn:disabled { opacity: 0.5; pointer-events: none; }
 
   /* МОДАЛЬНОЕ ОКНО */
@@ -161,10 +165,7 @@
     padding: 32px;
   }
 
-  .modal.show {
-    opacity: 1;
-    pointer-events: all;
-  }
+  .modal.show { opacity: 1; pointer-events: all; }
 
   .modal-icon {
     font-size: 72px;
@@ -213,7 +214,7 @@
   .modal-btn {
     width: 100%;
     padding: 16px;
-    border: none;
+    border: 1.5px solid var(--border);
     border-radius: var(--radius);
     font-family: 'Unbounded', sans-serif;
     font-size: 14px;
@@ -221,7 +222,6 @@
     cursor: pointer;
     background: var(--surface2);
     color: var(--text);
-    border: 1.5px solid var(--border);
   }
 
   .loading-overlay {
@@ -258,9 +258,10 @@
 </div>
 
 <div class="tabs">
-  <div class="tab active-k" id="tab-k" onclick="switchTab('k')">К<br><span style="font-size:10px;opacity:0.7">Косонсой</span></div>
-  <div class="tab" id="tab-m" onclick="switchTab('m')">М<br><span style="font-size:10px;opacity:0.7">Москва</span></div>
-  <div class="tab" id="tab-d" onclick="switchTab('d')">Д<br><span style="font-size:10px;opacity:0.7">Дубли</span></div>
+  <div class="tab active-k" id="tab-k" onclick="switchTab('k')">К<br><span style="font-size:9px;opacity:0.7">Косонсой</span></div>
+  <div class="tab" id="tab-m" onclick="switchTab('m')">М<br><span style="font-size:9px;opacity:0.7">Москва</span></div>
+  <div class="tab" id="tab-d" onclick="switchTab('d')">Д<br><span style="font-size:9px;opacity:0.7">Дубли</span></div>
+  <div class="tab" id="tab-add" onclick="switchTab('add')">+<br><span style="font-size:9px;opacity:0.7">Клиент</span></div>
 </div>
 
 <!-- ФОРМА К -->
@@ -282,7 +283,7 @@
     <label>Комментарий (необязательно)</label>
     <input type="text" id="k-comment" placeholder="Люблино нахт">
   </div>
-  <button class="btn btn-k" id="btn-k" onclick="submit('к')">ЗАПИСАТЬ</button>
+  <button class="btn btn-k" onclick="submit('к')">ЗАПИСАТЬ</button>
 </div>
 
 <!-- ФОРМА М -->
@@ -300,7 +301,7 @@
     <label>Комментарий (необязательно)</label>
     <input type="text" id="m-comment" placeholder="Люблино нахт">
   </div>
-  <button class="btn btn-m" id="btn-m" onclick="submit('м')">ЗАПИСАТЬ</button>
+  <button class="btn btn-m" onclick="submit('м')">ЗАПИСАТЬ</button>
 </div>
 
 <!-- ФОРМА Д -->
@@ -326,7 +327,17 @@
     <label>Комментарий (необязательно)</label>
     <input type="text" id="d-comment" placeholder="Люблино нахт">
   </div>
-  <button class="btn btn-d" id="btn-d" onclick="submit('д')">ЗАПИСАТЬ</button>
+  <button class="btn btn-d" onclick="submit('д')">ЗАПИСАТЬ</button>
+</div>
+
+<!-- ФОРМА ДОБАВИТЬ КЛИЕНТА -->
+<div class="form form-add" id="form-add">
+  <div class="form-title">Новый клиент</div>
+  <div class="field">
+    <label>Имя клиента</label>
+    <input type="text" id="add-name" placeholder="Введите имя">
+  </div>
+  <button class="btn btn-add" onclick="addClient()">ДОБАВИТЬ</button>
 </div>
 
 <!-- ЗАГРУЗКА -->
@@ -351,7 +362,6 @@
   let currentTab = 'k';
   let names = [];
 
-  // Загружаем имена при старте
   async function loadNames() {
     try {
       const res = await fetch(API_URL + '?action=getNames');
@@ -397,17 +407,37 @@
     const titleEl = document.getElementById('modal-title');
     titleEl.textContent = title;
     titleEl.className = 'modal-title ' + (success ? 'success' : 'error');
-
     const details = document.getElementById('modal-details');
     details.innerHTML = rows.map(r =>
       `<div class="modal-row"><span>${r[0]}</span><span>${r[1]}</span></div>`
     ).join('');
-
     modal.classList.add('show');
   }
 
   function closeModal() {
     document.getElementById('modal').classList.remove('show');
+  }
+
+  async function addClient() {
+    const name = document.getElementById('add-name').value.trim();
+    if (!name) { showModal(false, 'ОШИБКА', [['Сообщение', 'Введите имя клиента']]); return; }
+
+    showLoading(true);
+    try {
+      const res = await fetch(API_URL + '?action=addName&name=' + encodeURIComponent(name));
+      const data = await res.json();
+      showLoading(false);
+      if (data.ok) {
+        document.getElementById('add-name').value = '';
+        await loadNames(); // обновляем список
+        showModal(true, 'ДОБАВЛЕНО!', [['Клиент', name]]);
+      } else {
+        showModal(false, 'ОШИБКА', [['Сообщение', data.message]]);
+      }
+    } catch(err) {
+      showLoading(false);
+      showModal(false, 'ОШИБКА СОЕДИНЕНИЯ', [['Детали', err.message]]);
+    }
   }
 
   async function submit(action) {
@@ -418,14 +448,14 @@
       const name = document.getElementById('k-name').value;
       const amount = document.getElementById('k-amount').value.trim();
       const rate = document.getElementById('k-rate').value.trim();
-      if (!name || !amount || !rate) { showModal(false, 'Заполни все поля!', []); return; }
+      if (!name || !amount || !rate) { showModal(false, 'ОШИБКА', [['Сообщение', 'Заполни все поля!']]); return; }
       params = { action, name, amount, rate, comment: document.getElementById('k-comment').value.trim() };
       modalRows = [['Имя', name], ['Сумма', amount + ' $'], ['Курс', rate], ['Направление', 'Косонсой']];
 
     } else if (action === 'м') {
       const name = document.getElementById('m-name').value;
       const amount = document.getElementById('m-amount').value.trim();
-      if (!name || !amount) { showModal(false, 'Заполни все поля!', []); return; }
+      if (!name || !amount) { showModal(false, 'ОШИБКА', [['Сообщение', 'Заполни все поля!']]); return; }
       params = { action, name, amount, comment: document.getElementById('m-comment').value.trim() };
       modalRows = [['Имя', name], ['Сумма', amount + ' ₽'], ['Направление', 'Москва']];
 
@@ -434,21 +464,18 @@
       const otKogo = document.getElementById('d-otKogo').value;
       const komu = document.getElementById('d-komu').value;
       const summa = document.getElementById('d-summa').value.trim();
-      if (!deystvie || !otKogo || !komu || !summa) { showModal(false, 'Заполни все поля!', []); return; }
+      if (!deystvie || !otKogo || !komu || !summa) { showModal(false, 'ОШИБКА', [['Сообщение', 'Заполни все поля!']]); return; }
       params = { action, deystvie, otKogo, komu, summa, comment: document.getElementById('d-comment').value.trim() };
       modalRows = [['Действие', deystvie], ['От кого', otKogo], ['Кому', komu], ['Сумма', summa + ' ₽']];
     }
 
     showLoading(true);
-
     try {
       const query = new URLSearchParams(params).toString();
       const res = await fetch(API_URL + '?' + query);
       const data = await res.json();
       showLoading(false);
-
       if (data.ok) {
-        // Очищаем форму
         document.querySelectorAll('#form-' + currentTab + ' input').forEach(i => i.value = '');
         document.querySelectorAll('#form-' + currentTab + ' select').forEach(s => s.selectedIndex = 0);
         showModal(true, 'ЗАПИСАНО!', modalRows);
@@ -461,7 +488,6 @@
     }
   }
 
-  // Загружаем имена при старте
   loadNames();
 </script>
 </body>
