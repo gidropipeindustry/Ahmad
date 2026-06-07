@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Финансы</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Manrope:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222e;
+    --border: #2e2e3e;
+    --accent-k: #f0c040;
+    --accent-m: #4fc3f7;
+    --accent-d: #a78bfa;
+    --text: #f0f0f8;
+    --text-muted: #7070a0;
+    --success: #4ade80;
+    --error: #f87171;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-top: 8px;
+  }
+
+  .header h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .tab {
+    padding: 12px 8px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .tab.active-k { border-color: var(--accent-k); color: var(--accent-k); background: rgba(240,192,64,0.08); }
+  .tab.active-m { border-color: var(--accent-m); color: var(--accent-m); background: rgba(79,195,247,0.08); }
+  .tab.active-d { border-color: var(--accent-d); color: var(--accent-d); background: rgba(167,139,250,0.08); }
+
+  .form { display: none; }
+  .form.active { display: block; }
+
+  .form-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .field input, .field select {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .field input:focus { border-color: var(--accent-k); }
+  .form-m .field input:focus { border-color: var(--accent-m); }
+  .form-d .field input:focus, .form-d .field select:focus { border-color: var(--accent-d); }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237070a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  .field select option { background: var(--surface2); }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-k { background: var(--accent-k); color: #0f0f13; }
+  .btn-m { background: var(--accent-m); color: #0f0f13; }
+  .btn-d { background: var(--accent-d); color: #0f0f13; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--success); color: #0f0f13; }
+  .toast.error { background: var(--error); color: #0f0f13; }
+
+  .loading { opacity: 0.6; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ФИНАНСЫ</h1>
+</div>
+
+<div class="tabs">
+  <div class="tab active-k" onclick="switchTab('k')">К<br><span style="font-size:10px;opacity:0.7">Косонсой</span></div>
+  <div class="tab" onclick="switchTab('m')">М<br><span style="font-size:10px;opacity:0.7">Москва</span></div>
+  <div class="tab" onclick="switchTab('d')">Д<br><span style="font-size:10px;opacity:0.7">Дубли</span></div>
+</div>
+
+<!-- ФОРМА К -->
+<div class="form form-k active" id="form-k">
+  <div class="form-title">Косонсой — Доллар</div>
+  <div class="field">
+    <label>Имя</label>
+    <input type="text" id="k-name" placeholder="Ахмад">
+  </div>
+  <div class="field">
+    <label>Сумма</label>
+    <input type="number" id="k-amount" placeholder="500">
+  </div>
+  <div class="field">
+    <label>Курс</label>
+    <input type="number" id="k-rate" placeholder="76.5" step="0.01">
+  </div>
+  <div class="field">
+    <label>Комментарий (необязательно)</label>
+    <input type="text" id="k-comment" placeholder="Люблино нахт">
+  </div>
+  <button class="btn btn-k" onclick="submit('к')">ЗАПИСАТЬ</button>
+</div>
+
+<!-- ФОРМА М -->
+<div class="form form-m" id="form-m">
+  <div class="form-title">Москва — Рубль</div>
+  <div class="field">
+    <label>Имя</label>
+    <input type="text" id="m-name" placeholder="Ахмад">
+  </div>
+  <div class="field">
+    <label>Сумма</label>
+    <input type="number" id="m-amount" placeholder="50000">
+  </div>
+  <div class="field">
+    <label>Комментарий (необязательно)</label>
+    <input type="text" id="m-comment" placeholder="Люблино нахт">
+  </div>
+  <button class="btn btn-m" onclick="submit('м')">ЗАПИСАТЬ</button>
+</div>
+
+<!-- ФОРМА Д -->
+<div class="form form-d" id="form-d">
+  <div class="form-title">Дубли — Рубль</div>
+  <div class="field">
+    <label>Действие</label>
+    <input type="text" id="d-deystvie" placeholder="Перевод">
+  </div>
+  <div class="field">
+    <label>От кого</label>
+    <input type="text" id="d-otKogo" placeholder="Ахмад">
+  </div>
+  <div class="field">
+    <label>Кому</label>
+    <input type="text" id="d-komu" placeholder="Мирзо">
+  </div>
+  <div class="field">
+    <label>Сумма</label>
+    <input type="number" id="d-summa" placeholder="50000">
+  </div>
+  <div class="field">
+    <label>Комментарий (необязательно)</label>
+    <input type="text" id="d-comment" placeholder="Люблино нахт">
+  </div>
+  <button class="btn btn-d" onclick="submit('д')">ЗАПИСАТЬ</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ⚠️ ВСТАВЬ СВОЙ URL СЮДА
+  const API_URL = "https://script.google.com/macros/s/AKfycbwDRAUPPHtWjGfrggBVBRd-x-3uHX15nepW9lWw8rYMMdTvtvpR78d-NWmwqMHY_7pUow/exec";
+
+  const tg = window.Telegram?.WebApp;
+  if (tg) tg.expand();
+
+  let currentTab = 'k';
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => {
+      t.className = 'tab';
+      if (t.onclick.toString().includes(`'${tab}'`)) {
+        t.classList.add('active-' + tab);
+      }
+    });
+    document.getElementById('form-' + tab).classList.add('active');
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  async function submit(action) {
+    let params = { action };
+
+    if (action === 'к') {
+      const name = document.getElementById('k-name').value.trim();
+      const amount = document.getElementById('k-amount').value.trim();
+      const rate = document.getElementById('k-rate').value.trim();
+      if (!name || !amount || !rate) { showToast('Заполни все поля!', 'error'); return; }
+      params = { action, name, amount, rate, comment: document.getElementById('k-comment').value.trim() };
+
+    } else if (action === 'м') {
+      const name = document.getElementById('m-name').value.trim();
+      const amount = document.getElementById('m-amount').value.trim();
+      if (!name || !amount) { showToast('Заполни все поля!', 'error'); return; }
+      params = { action, name, amount, comment: document.getElementById('m-comment').value.trim() };
+
+    } else if (action === 'д') {
+      const deystvie = document.getElementById('d-deystvie').value.trim();
+      const otKogo = document.getElementById('d-otKogo').value.trim();
+      const komu = document.getElementById('d-komu').value.trim();
+      const summa = document.getElementById('d-summa').value.trim();
+      if (!deystvie || !otKogo || !komu || !summa) { showToast('Заполни все поля!', 'error'); return; }
+      params = { action, deystvie, otKogo, komu, summa, comment: document.getElementById('d-comment').value.trim() };
+    }
+
+    const btn = document.querySelector('.form.active .btn');
+    btn.classList.add('loading');
+    btn.textContent = 'ОТПРАВКА...';
+
+    try {
+      const query = new URLSearchParams(params).toString();
+      const res = await fetch(API_URL + '?' + query);
+      const data = await res.json();
+
+      if (data.ok) {
+        showToast('✅ ' + data.message, 'success');
+        // Очищаем форму
+        document.querySelectorAll('.form.active input').forEach(i => i.value = '');
+      } else {
+        showToast('❌ ' + data.message, 'error');
+      }
+    } catch(err) {
+      showToast('❌ Ошибка соединения', 'error');
+    }
+
+    btn.classList.remove('loading');
+    btn.textContent = 'ЗАПИСАТЬ';
+  }
+</script>
+</body>
+</html>
