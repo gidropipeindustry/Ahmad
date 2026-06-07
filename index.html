@@ -44,7 +44,6 @@
     font-size: 18px;
     font-weight: 700;
     letter-spacing: -0.5px;
-    color: var(--text);
   }
 
   .tabs {
@@ -85,9 +84,7 @@
     margin-bottom: 16px;
   }
 
-  .field {
-    margin-bottom: 14px;
-  }
+  .field { margin-bottom: 14px; }
 
   .field label {
     display: block;
@@ -114,10 +111,6 @@
     -webkit-appearance: none;
   }
 
-  .field input:focus { border-color: var(--accent-k); }
-  .form-m .field input:focus { border-color: var(--accent-m); }
-  .form-d .field input:focus, .form-d .field select:focus { border-color: var(--accent-d); }
-
   .field select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237070a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -126,7 +119,11 @@
     cursor: pointer;
   }
 
-  .field select option { background: var(--surface2); }
+  .field select option { background: #22222e; color: #f0f0f8; }
+
+  .form-k .field input:focus, .form-k .field select:focus { border-color: var(--accent-k); }
+  .form-m .field input:focus, .form-m .field select:focus { border-color: var(--accent-m); }
+  .form-d .field input:focus, .form-d .field select:focus { border-color: var(--accent-d); }
 
   .btn {
     width: 100%;
@@ -143,30 +140,115 @@
   }
 
   .btn:active { transform: scale(0.97); }
-
   .btn-k { background: var(--accent-k); color: #0f0f13; }
   .btn-m { background: var(--accent-m); color: #0f0f13; }
   .btn-d { background: var(--accent-d); color: #0f0f13; }
+  .btn:disabled { opacity: 0.5; pointer-events: none; }
 
-  .toast {
+  /* МОДАЛЬНОЕ ОКНО */
+  .modal {
     position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    transition: transform 0.3s ease;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     z-index: 100;
-    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 32px;
   }
 
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { background: var(--success); color: #0f0f13; }
-  .toast.error { background: var(--error); color: #0f0f13; }
+  .modal.show {
+    opacity: 1;
+    pointer-events: all;
+  }
 
-  .loading { opacity: 0.6; pointer-events: none; }
+  .modal-icon {
+    font-size: 72px;
+    margin-bottom: 24px;
+    animation: pop 0.4s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .modal-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .modal-title.success { color: var(--success); }
+  .modal-title.error { color: var(--error); }
+
+  .modal-details {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+
+  .modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row span:first-child { color: var(--text-muted); }
+  .modal-row span:last-child { font-weight: 600; }
+
+  .modal-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,15,19,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .loading-overlay.show { opacity: 1; pointer-events: all; }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -176,9 +258,9 @@
 </div>
 
 <div class="tabs">
-  <div class="tab active-k" onclick="switchTab('k')">К<br><span style="font-size:10px;opacity:0.7">Косонсой</span></div>
-  <div class="tab" onclick="switchTab('m')">М<br><span style="font-size:10px;opacity:0.7">Москва</span></div>
-  <div class="tab" onclick="switchTab('d')">Д<br><span style="font-size:10px;opacity:0.7">Дубли</span></div>
+  <div class="tab active-k" id="tab-k" onclick="switchTab('k')">К<br><span style="font-size:10px;opacity:0.7">Косонсой</span></div>
+  <div class="tab" id="tab-m" onclick="switchTab('m')">М<br><span style="font-size:10px;opacity:0.7">Москва</span></div>
+  <div class="tab" id="tab-d" onclick="switchTab('d')">Д<br><span style="font-size:10px;opacity:0.7">Дубли</span></div>
 </div>
 
 <!-- ФОРМА К -->
@@ -186,7 +268,7 @@
   <div class="form-title">Косонсой — Доллар</div>
   <div class="field">
     <label>Имя</label>
-    <input type="text" id="k-name" placeholder="Ахмад">
+    <select id="k-name"><option value="">— выберите —</option></select>
   </div>
   <div class="field">
     <label>Сумма</label>
@@ -200,7 +282,7 @@
     <label>Комментарий (необязательно)</label>
     <input type="text" id="k-comment" placeholder="Люблино нахт">
   </div>
-  <button class="btn btn-k" onclick="submit('к')">ЗАПИСАТЬ</button>
+  <button class="btn btn-k" id="btn-k" onclick="submit('к')">ЗАПИСАТЬ</button>
 </div>
 
 <!-- ФОРМА М -->
@@ -208,7 +290,7 @@
   <div class="form-title">Москва — Рубль</div>
   <div class="field">
     <label>Имя</label>
-    <input type="text" id="m-name" placeholder="Ахмад">
+    <select id="m-name"><option value="">— выберите —</option></select>
   </div>
   <div class="field">
     <label>Сумма</label>
@@ -218,7 +300,7 @@
     <label>Комментарий (необязательно)</label>
     <input type="text" id="m-comment" placeholder="Люблино нахт">
   </div>
-  <button class="btn btn-m" onclick="submit('м')">ЗАПИСАТЬ</button>
+  <button class="btn btn-m" id="btn-m" onclick="submit('м')">ЗАПИСАТЬ</button>
 </div>
 
 <!-- ФОРМА Д -->
@@ -230,11 +312,11 @@
   </div>
   <div class="field">
     <label>От кого</label>
-    <input type="text" id="d-otKogo" placeholder="Ахмад">
+    <select id="d-otKogo"><option value="">— выберите —</option></select>
   </div>
   <div class="field">
     <label>Кому</label>
-    <input type="text" id="d-komu" placeholder="Мирзо">
+    <select id="d-komu"><option value="">— выберите —</option></select>
   </div>
   <div class="field">
     <label>Сумма</label>
@@ -244,88 +326,143 @@
     <label>Комментарий (необязательно)</label>
     <input type="text" id="d-comment" placeholder="Люблино нахт">
   </div>
-  <button class="btn btn-d" onclick="submit('д')">ЗАПИСАТЬ</button>
+  <button class="btn btn-d" id="btn-d" onclick="submit('д')">ЗАПИСАТЬ</button>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- ЗАГРУЗКА -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div class="modal" id="modal">
+  <div class="modal-icon" id="modal-icon"></div>
+  <div class="modal-title" id="modal-title"></div>
+  <div class="modal-details" id="modal-details"></div>
+  <button class="modal-btn" onclick="closeModal()">← НАЗАД</button>
+</div>
 
 <script>
-  // ⚠️ ВСТАВЬ СВОЙ URL СЮДА
   const API_URL = "https://script.google.com/macros/s/AKfycbwDRAUPPHtWjGfrggBVBRd-x-3uHX15nepW9lWw8rYMMdTvtvpR78d-NWmwqMHY_7pUow/exec";
 
   const tg = window.Telegram?.WebApp;
   if (tg) tg.expand();
 
   let currentTab = 'k';
+  let names = [];
+
+  // Загружаем имена при старте
+  async function loadNames() {
+    try {
+      const res = await fetch(API_URL + '?action=getNames');
+      const data = await res.json();
+      if (data.ok) {
+        names = data.names;
+        fillSelects();
+      }
+    } catch(err) {
+      console.log('Ошибка загрузки имён:', err);
+    }
+  }
+
+  function fillSelects() {
+    const selects = ['k-name', 'm-name', 'd-otKogo', 'd-komu'];
+    selects.forEach(id => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = '<option value="">— выберите —</option>';
+      names.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+    });
+  }
 
   function switchTab(tab) {
     currentTab = tab;
     document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => {
-      t.className = 'tab';
-      if (t.onclick.toString().includes(`'${tab}'`)) {
-        t.classList.add('active-' + tab);
-      }
-    });
+    document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
     document.getElementById('form-' + tab).classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active-' + tab);
   }
 
-  function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type;
-    setTimeout(() => t.classList.add('show'), 10);
-    setTimeout(() => t.classList.remove('show'), 3000);
+  function showLoading(show) {
+    document.getElementById('loading').classList.toggle('show', show);
+  }
+
+  function showModal(success, title, rows) {
+    const modal = document.getElementById('modal');
+    document.getElementById('modal-icon').textContent = success ? '✅' : '❌';
+    const titleEl = document.getElementById('modal-title');
+    titleEl.textContent = title;
+    titleEl.className = 'modal-title ' + (success ? 'success' : 'error');
+
+    const details = document.getElementById('modal-details');
+    details.innerHTML = rows.map(r =>
+      `<div class="modal-row"><span>${r[0]}</span><span>${r[1]}</span></div>`
+    ).join('');
+
+    modal.classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
   }
 
   async function submit(action) {
     let params = { action };
+    let modalRows = [];
 
     if (action === 'к') {
-      const name = document.getElementById('k-name').value.trim();
+      const name = document.getElementById('k-name').value;
       const amount = document.getElementById('k-amount').value.trim();
       const rate = document.getElementById('k-rate').value.trim();
-      if (!name || !amount || !rate) { showToast('Заполни все поля!', 'error'); return; }
+      if (!name || !amount || !rate) { showModal(false, 'Заполни все поля!', []); return; }
       params = { action, name, amount, rate, comment: document.getElementById('k-comment').value.trim() };
+      modalRows = [['Имя', name], ['Сумма', amount + ' $'], ['Курс', rate], ['Направление', 'Косонсой']];
 
     } else if (action === 'м') {
-      const name = document.getElementById('m-name').value.trim();
+      const name = document.getElementById('m-name').value;
       const amount = document.getElementById('m-amount').value.trim();
-      if (!name || !amount) { showToast('Заполни все поля!', 'error'); return; }
+      if (!name || !amount) { showModal(false, 'Заполни все поля!', []); return; }
       params = { action, name, amount, comment: document.getElementById('m-comment').value.trim() };
+      modalRows = [['Имя', name], ['Сумма', amount + ' ₽'], ['Направление', 'Москва']];
 
     } else if (action === 'д') {
       const deystvie = document.getElementById('d-deystvie').value.trim();
-      const otKogo = document.getElementById('d-otKogo').value.trim();
-      const komu = document.getElementById('d-komu').value.trim();
+      const otKogo = document.getElementById('d-otKogo').value;
+      const komu = document.getElementById('d-komu').value;
       const summa = document.getElementById('d-summa').value.trim();
-      if (!deystvie || !otKogo || !komu || !summa) { showToast('Заполни все поля!', 'error'); return; }
+      if (!deystvie || !otKogo || !komu || !summa) { showModal(false, 'Заполни все поля!', []); return; }
       params = { action, deystvie, otKogo, komu, summa, comment: document.getElementById('d-comment').value.trim() };
+      modalRows = [['Действие', deystvie], ['От кого', otKogo], ['Кому', komu], ['Сумма', summa + ' ₽']];
     }
 
-    const btn = document.querySelector('.form.active .btn');
-    btn.classList.add('loading');
-    btn.textContent = 'ОТПРАВКА...';
+    showLoading(true);
 
     try {
       const query = new URLSearchParams(params).toString();
       const res = await fetch(API_URL + '?' + query);
       const data = await res.json();
+      showLoading(false);
 
       if (data.ok) {
-        showToast('✅ ' + data.message, 'success');
         // Очищаем форму
-        document.querySelectorAll('.form.active input').forEach(i => i.value = '');
+        document.querySelectorAll('#form-' + currentTab + ' input').forEach(i => i.value = '');
+        document.querySelectorAll('#form-' + currentTab + ' select').forEach(s => s.selectedIndex = 0);
+        showModal(true, 'ЗАПИСАНО!', modalRows);
       } else {
-        showToast('❌ ' + data.message, 'error');
+        showModal(false, 'ОШИБКА', [['Сообщение', data.message]]);
       }
     } catch(err) {
-      showToast('❌ Ошибка соединения', 'error');
+      showLoading(false);
+      showModal(false, 'ОШИБКА СОЕДИНЕНИЯ', [['Детали', err.message]]);
     }
-
-    btn.classList.remove('loading');
-    btn.textContent = 'ЗАПИСАТЬ';
   }
+
+  // Загружаем имена при старте
+  loadNames();
 </script>
 </body>
 </html>
